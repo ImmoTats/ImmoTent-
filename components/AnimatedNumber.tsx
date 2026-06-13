@@ -4,13 +4,24 @@ import { useEffect, useState } from "react";
 
 interface AnimatedNumberProps {
   value: number;
-  format?: (n: number) => string;
+  format?: "euro" | "number";
   duration?: number;
+}
+
+function formatValue(n: number, format: "euro" | "number"): string {
+  if (format === "euro") {
+    return new Intl.NumberFormat("de-DE", {
+      style: "currency",
+      currency: "EUR",
+      maximumFractionDigits: 0,
+    }).format(Math.round(n));
+  }
+  return Math.round(n).toLocaleString("de-DE");
 }
 
 export default function AnimatedNumber({
   value,
-  format = (n) => Math.round(n).toLocaleString("de-DE"),
+  format = "number",
   duration = 1400,
 }: AnimatedNumberProps) {
   const [display, setDisplay] = useState(0);
@@ -34,5 +45,5 @@ export default function AnimatedNumber({
     return () => cancelAnimationFrame(frame);
   }, [value, duration]);
 
-  return <span className="tabular">{format(display)}</span>;
+  return <span className="tabular">{formatValue(display, format)}</span>;
 }
