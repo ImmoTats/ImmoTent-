@@ -2,7 +2,25 @@
 
 import { useState, FormEvent } from "react";
 
-export default function LeadForm() {
+interface AnalyseDaten {
+  adresse: string;
+  immobilientyp: string;
+  baujahr: number;
+  wohnflaeche: number;
+  marktwert: number;
+  gesamtPotenzialEuro: number;
+  energieklasseAktuell: string;
+  energieklasseMoeglich: string;
+  energieEinsparungMin: number;
+  energieEinsparungMax: number;
+  modernisierungWert: number;
+}
+
+interface LeadFormProps {
+  analyseDaten?: AnalyseDaten;
+}
+
+export default function LeadForm({ analyseDaten }: LeadFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -28,12 +46,20 @@ export default function LeadForm() {
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim() }),
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          analyse: analyseDaten,
+        }),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.");
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success) {
+        setError(
+          data.error ??
+            "Der Bericht konnte gerade nicht versendet werden. Bitte versuche es erneut."
+        );
         setStatus("error");
         return;
       }
@@ -87,49 +113,4 @@ export default function LeadForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoComplete="name"
-            className="w-full rounded-lg border border-line bg-cream/40 px-4 py-3 text-ink placeholder:text-ink/35 text-[15px] focus:ring-2 focus:ring-sage/40 focus:border-sage/50 transition"
-          />
-        </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-ink/80 mb-1.5">
-            E-Mail-Adresse
-          </label>
-          <input
-            id="email"
-            type="email"
-            placeholder="max@beispiel.de"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-            className="w-full rounded-lg border border-line bg-cream/40 px-4 py-3 text-ink placeholder:text-ink/35 text-[15px] focus:ring-2 focus:ring-sage/40 focus:border-sage/50 transition"
-          />
-        </div>
-
-        {error && (
-          <p className="text-sm text-red-600" role="alert">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={status === "loading"}
-          className="w-full rounded-lg bg-ink text-cream font-semibold text-[15px] py-3.5 transition-all hover:bg-ink/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-2"
-        >
-          {status === "loading" ? (
-            <>
-              <span className="h-4 w-4 rounded-full border-2 border-cream/30 border-t-cream animate-spin" />
-              Wird gesendet …
-            </>
-          ) : (
-            "Vollständigen Potenzialbericht erhalten"
-          )}
-        </button>
-
-        <p className="text-center text-xs text-ink/40">
-          Kein Spam. Abmeldung jederzeit möglich.
-        </p>
-      </form>
-    </div>
-  );
-}
+            className="w-full rounded-lg border border-line bg-cream/40 px-4 py-3 text-ink placeholder:
