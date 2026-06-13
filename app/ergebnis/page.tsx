@@ -29,7 +29,8 @@ export default function ErgebnisPage({
     marktwertSpanneMin,
     marktwertSpanneMax,
     energiePotenzial,
-    energieEinsparung,
+    energieEinsparungMin,
+    energieEinsparungMax,
     modernisierungPotenzial,
     modernisierungWert,
     gesamtPotenzial,
@@ -41,7 +42,7 @@ export default function ErgebnisPage({
   return (
     <main className="min-h-screen bg-cream">
       {/* Top bar */}
-      <div className="bg-ink bg-grain">
+      <div className="bg-ink bg-grain" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <div className="mx-auto max-w-6xl px-6 py-5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold/90 text-ink font-display font-semibold text-sm transition-transform group-hover:scale-105">
@@ -91,9 +92,9 @@ export default function ErgebnisPage({
                 ungenutztes Potenzial
               </h2>
               <p className="mt-3 text-ink/60 leading-relaxed max-w-xl">
-                Diese Zahl ergibt sich aus der möglichen Wertsteigerung durch
-                Modernisierung sowie den Energiekosten-Einsparungen über die
-                nächsten 10 Jahre.
+                Diese Zahl setzt sich aus möglicher Wertsteigerung durch
+                Modernisierung und geschätzten Energiekosten-Einsparungen über
+                10 Jahre zusammen.
               </p>
               <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-goldLight px-4 py-2 text-sm text-ink/70">
                 <span className="text-base">💡</span>
@@ -140,20 +141,21 @@ export default function ErgebnisPage({
               <span className="font-medium text-ink tabular">{energiePotenzial} / 100</span>
             </div>
             <ProgressBar value={energiePotenzial} />
-            <div className="mt-4 flex items-center gap-2 text-sm">
+            <div className="mt-4 flex items-center gap-2 text-sm flex-wrap">
+              <span className="text-ink/50 text-xs">Ist-Klasse:</span>
               <span className="rounded-md bg-red-50 text-red-600 font-semibold px-2 py-0.5 tabular">
                 {energieklasseAktuell}
               </span>
               <span className="text-ink/40">→</span>
+              <span className="text-ink/50 text-xs">Zielklasse:</span>
               <span className="rounded-md bg-sageLight text-sage font-semibold px-2 py-0.5 tabular">
                 {energieklasseMoeglich}
               </span>
-              <span className="text-ink/50 text-xs">mögliche Klasse</span>
             </div>
             <p className="mt-4 text-sm text-ink/60 leading-relaxed">
               Mögliche Einsparung: rund{" "}
               <span className="font-medium text-ink">
-                {formatEuro(energieEinsparung)} / Jahr
+                {formatEuro(energieEinsparungMin)} – {formatEuro(energieEinsparungMax)} / Jahr
               </span>{" "}
               durch energetische Sanierung.
             </p>
@@ -184,10 +186,27 @@ export default function ErgebnisPage({
       </section>
 
       {/* Lead capture + Share */}
-      <section className="mx-auto max-w-6xl px-6 pb-20 sm:pb-28">
+      <section
+        className="mx-auto max-w-6xl px-6 pb-20 sm:pb-28"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 3rem)" }}
+      >
         <div className="grid lg:grid-cols-[1.4fr,1fr] gap-6 items-start">
           <div className="animate-fadeUp" style={{ animationDelay: "0.35s" }}>
-            <LeadForm />
+            <LeadForm
+              analyseDaten={{
+                adresse: input!.adresse,
+                immobilientyp: typeLabel(input!.immobilientyp),
+                baujahr: input!.baujahr,
+                wohnflaeche: input!.wohnflaeche,
+                marktwert,
+                gesamtPotenzialEuro,
+                energieklasseAktuell,
+                energieklasseMoeglich,
+                energieEinsparungMin,
+                energieEinsparungMax,
+                modernisierungWert,
+              }}
+            />
           </div>
           <div className="animate-fadeUp" style={{ animationDelay: "0.4s" }}>
             <ShareSection />
@@ -209,7 +228,10 @@ export default function ErgebnisPage({
 
       {/* Footer */}
       <footer className="bg-ink border-t border-cream/10">
-        <div className="mx-auto max-w-6xl px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-cream/40">
+        <div
+          className="mx-auto max-w-6xl px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-cream/40"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 2.5rem)" }}
+        >
           <div className="flex items-center gap-2.5">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold/90 text-ink font-display font-semibold text-xs">
               H
