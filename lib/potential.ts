@@ -12,7 +12,8 @@ export interface BerechnungResult {
   marktwertSpanneMin: number;
   marktwertSpanneMax: number;
   energiePotenzial: number;
-  energieEinsparung: number;
+  energieEinsparungMin: number;
+  energieEinsparungMax: number;
   modernisierungPotenzial: number;
   modernisierungWert: number;
   gesamtPotenzial: number;
@@ -39,20 +40,22 @@ export function typeLabel(t: PropertyType): string {
   return TYPE_LABEL[t] ?? t;
 }
 
+const ENERGY_ORDER = ["H", "G", "F", "E", "D", "C", "B", "A", "A+"];
+
 function energyClassForAge(age: number): string {
-  if (age > 50) return "G";
-  if (age > 40) return "F";
-  if (age > 30) return "E";
-  if (age > 20) return "D";
-  if (age > 10) return "C";
-  return "B";
+  if (age > 50) return "H";
+  if (age > 40) return "G";
+  if (age > 30) return "F";
+  if (age > 20) return "E";
+  if (age > 10) return "D";
+  return "C";
 }
 
-function improvedEnergyClass(current: string): string {
-  const order = ["H", "G", "F", "E", "D", "C", "B", "A+"];
-  const idx = order.indexOf(current);
-  const newIdx = Math.max(0, idx - 3);
-  return order[newIdx] ?? "A+";
+function improvedEnergyClass(current: string, steps: number): string {
+  const idx = ENERGY_ORDER.indexOf(current);
+  const safeIdx = idx === -1 ? 0 : idx;
+  const newIdx = Math.min(ENERGY_ORDER.length - 1, safeIdx + steps);
+  return ENERGY_ORDER[newIdx];
 }
 
 function seedFromString(str: string): number {
@@ -78,11 +81,19 @@ export function berechnePotenzial(input: BerechnungInput): BerechnungResult {
 
   const energiePotenzial = Math.min(95, Math.max(15, Math.round(age * 1.6 + 10)));
   const energieklasseAktuell = energyClassForAge(age);
-  const energieklasseMoeglich = improvedEnergyClass(energieklasseAktuell);
 
-  const energieEinsparung = Math.round(
-    ((input.wohnflaeche * 0.12 * (energiePotenzial / 100)) * 22) / 10
-  ) * 10;
+  const improvementSteps = Math.max(2, Math.min(4, Math.round(energiePotenzial / 30) + 2));
+  const energieklasseMoeglich = improvedEnergyClass(energieklasseAktuell, improvementSteps);
+
+  const baseSavingPerSqm = 8 + (energiePotenzial / 100) * 14;
+  const einsparungMittel = input.wohnflaeche * baseSavingPerSqm;
+  const energieEinsparungMin = Math.max(300, Math.round((einsparungMittel * 0.75) / 50) * 50);
+  const energieEinsparungMax = Math.max(
+    energieEinsparungMin + 200,
+    Math.round((einsparungMittel * 1.4) / 50) * 50
+  );
+
+  const energieEinsparungMid = (energieEinsparungMin + energieEinsparungMax) / 2;
 
   const modernisierungPotenzial = Math.min(
     95,
@@ -97,14 +108,15 @@ export function berechnePotenzial(input: BerechnungInput): BerechnungResult {
     Math.round(energiePotenzial * 0.45 + modernisierungPotenzial * 0.55)
   );
 
-  const gesamtPotenzialEuro = modernisierungWert + energieEinsparung * 10;
+  const gesamtPotenzialEuro = modernisierungWert + Math.round(energieEinsparungMid) * 10;
 
   return {
     marktwert,
     marktwertSpanneMin: Math.round((marktwert * 0.94) / 1000) * 1000,
     marktwertSpanneMax: Math.round((marktwert * 1.08) / 1000) * 1000,
     energiePotenzial,
-    energieEinsparung,
+    energieEinsparungMin,
+    energieEinsparungMax,
     modernisierungPotenzial,
     modernisierungWert,
     gesamtPotenzial,
