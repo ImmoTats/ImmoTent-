@@ -86,7 +86,7 @@ export default function ErgebnisPage({
               <h2 className="mt-2 font-display text-2xl sm:text-3xl font-medium text-ink">
                 Bis zu{" "}
                 <span className="text-gold">
-                  <AnimatedNumber value={gesamtPotenzialEuro} format={(n) => formatEuro(Math.round(n))} />
+                  <AnimatedNumber value={gesamtPotenzialEuro} format="euro" />
                 </span>{" "}
                 ungenutztes Potenzial
               </h2>
@@ -116,7 +116,7 @@ export default function ErgebnisPage({
               Geschätzter Marktwert
             </h3>
             <p className="mt-3 font-display text-3xl font-medium text-ink tabular">
-              <AnimatedNumber value={marktwert} format={(n) => formatEuro(Math.round(n))} />
+              <AnimatedNumber value={marktwert} format="euro" />
             </p>
             <p className="mt-1.5 text-sm text-ink/50">
               Spanne: {formatEuro(marktwertSpanneMin)} – {formatEuro(marktwertSpanneMax)}
