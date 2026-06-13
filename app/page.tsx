@@ -11,7 +11,8 @@ export default function HomePage() {
 
         <Header />
 
-        <div className="relative z-10 mx-auto max-w-6xl px-6 pt-28 pb-20 sm:pt-36 sm:pb-28">
+        <div className="relative z-10 mx-auto max-w-6xl px-6 pb-20 sm:pb-28" style={{ paddingTop: "calc(env(safe-area-inset-top) + 7rem)" }}>
+
           <div className="grid lg:grid-cols-2 gap-14 items-center">
             <div className="animate-fadeUp">
               <div className="inline-flex items-center gap-2 rounded-full border border-cream/15 bg-cream/5 px-3.5 py-1.5 text-xs font-medium text-cream/80 mb-6">
@@ -168,7 +169,8 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="bg-ink border-t border-cream/10">
-        <div className="mx-auto max-w-6xl px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-cream/40">
+        <div className="mx-auto max-w-6xl px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-cream/40" style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 2.5rem)" }}>
+
           <div className="flex items-center gap-2.5">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold/90 text-ink font-display font-semibold text-xs">
               H
